@@ -53,14 +53,27 @@ def checkWin():
             return False
     
     return True
+
+def checkTie():
+    symbolCount = 0
+    for x in board:
+        for c in range(3):
+            if x[c] != " ":
+                symbolCount += 1
+    if symbolCount == 9:
+        print("Tie game!")
+        return False
+    return True
+
     
 #Function to end game
 def endGame():
+    displayBoard()
     global player
     player = 1
     global board
     board = [[" "," "," "], [" "," "," "], [" "," "," "]]
-    again = input('Play again? (y or n): ')
+    again = input('\nPlay again? (y or n): ')
     while (again != 'y'):
         if again == 'n':
             sys.exit('Bruh')
@@ -72,7 +85,7 @@ def endGame():
 while(True):
 
     #Single game loop
-    while(checkWin()):
+    while(checkWin() and checkTie()):
 
         #Sets player symbol
         symbol = 'X'
