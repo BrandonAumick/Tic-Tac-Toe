@@ -155,15 +155,38 @@ while(True):
             except:
                 print('\n\n\n\n\n\n!!!Please enter a number!!!\n')
         else:
-            spot = random.randint(1, 9)
-            checkRow()
-            #Checks if the chosen spot has already been played in
-            if board[row][(spot + 2)%3] != " ":
-                continue
-                print("Please choose an empty space\n")
-            else:
-                #Adds spot on board and displays it
-                board[row][(spot + 2)%3] = symbol
+            
+            placeThird = True
+            boardPlaceRow = 0
+            for x in board:
+                boardPlaceColumn = 0
+                xCount = 0
+                oCount = 0
+                for c in x:
+                
+                    if c == 'X':
+                        xCount += 1
+                    elif c == 'O':
+                        oCount += 1
+                if xCount == 2 or oCount == 2:
+                    for c in x:
+                        if c == ' ':
+                            board[boardPlaceRow][boardPlaceColumn] = symbol
+                            placeThird = False
+                            break
+                        boardPlaceColumn += 1
+                boardPlaceRow += 1
+            if placeThird:
+                spot = random.randint(1, 9)
+                
+                checkRow()
+                #Checks if the chosen spot has already been played in
+                if board[row][(spot + 2)%3] != " ":
+                    continue
+                    print("Please choose an empty space\n")
+                else:
+                    #Adds spot on board and displays it
+                    board[row][(spot + 2)%3] = symbol
                                     
             #Changes player
             player = (player % 2) + 1
