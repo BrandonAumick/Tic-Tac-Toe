@@ -1,4 +1,5 @@
 import sys
+import random
 
 #Active player
 player = 1
@@ -17,6 +18,22 @@ def displayBoard():
         if c == 10:
             break
         print('--|---|--           --|---|--')
+
+
+def checkRow():
+    global row
+    if 1 <= spot <= 3:
+        row = 0
+    elif 4 <= spot <= 6:
+        row = 1
+    elif 7 <= spot <= 9:
+        row = 2
+    #If the input is not a number in the valid range
+    else:
+        print("!!!Please enter a valid number!!!\n")
+        return True
+    return False
+
         
 #Function to check if a player has won        
 def checkWin():
@@ -54,6 +71,7 @@ def checkWin():
     
     return True
 
+#Checks for a tie
 def checkTie():
     symbolCount = 0
     for x in board:
@@ -65,22 +83,37 @@ def checkTie():
         return False
     return True
 
+#Function for selecting a game mode
+def selectMode():
+    mode = input("Select a mode:\n1 - Player vs AI\n2 - Player vs Player\n")
+    while mode != '1' and mode != '2':
+        print("Please select a present mode\n")
+        mode = input("Select a mode:\n1 - Player vs AI\n2 - Player vs Player\n")
+        print()  
+    return int(mode)
+
     
 #Function to end game
 def endGame():
     displayBoard()
+    global gMode
     global player
     player = 1
     global board
     board = [[" "," "," "], [" "," "," "], [" "," "," "]]
-    again = input('\nPlay again? (y or n): ')
+    again = input('\nPlay again or change mode?\ny: Play Again\nn: Stop Playing\nc: Change Mode\n')
     while (again != 'y'):
         if again == 'n':
             sys.exit('Bruh')
+        elif again == 'c':
+            gMode = selectMode()
+            again = 'y'
+            continue
         again = input('Please enter y or n: ')
     print("\n\n\n\n\n\n")
 
-
+#Initial mode selection
+gMode = selectMode()
 #Loop for multiple games
 while(True):
 
@@ -94,44 +127,45 @@ while(True):
         else:
             symbol = 'O'
             
-        #Player input variable
-        spot = 0
-
-        #Displays places on board, what the current player is, and what their symbol is
-        print('Player ', player, ':', symbol)
-        displayBoard()
         
-        try:
-            #Takes player input for where to play
-            spot = int(input('Choose where to play: '))
-            print('\n\n\n\n\n\n')
-            
-            if 1 <= spot <= 3:
-                row = 0
-            elif 4 <= spot <= 6:
-                row = 1
-            elif 7 <= spot <= 9:
-                row = 2
-            #If the input is not a number in the valid range
-            else:
-                print("!!!Please enter a valid number!!!\n")
-                continue
-            
+        #Displays places on board, what the current player is, and what their symbol is    
+        if player == 1 or player == gMode:
+            print('Player ', player, ':', symbol)
+            displayBoard()
+            try:
+                #Takes player input for where to play
+                spot = int(input('Choose where to play: '))
+                print('\n\n\n\n\n\n')
+                
+                if checkRow():
+                    continue
+                
+                #Checks if the chosen spot has already been played in
+                if board[row][(spot + 2)%3] != " ":
+                    print("Please choose an empty space\n")
+                    continue
+                else:
+                    #Adds spot on board and displays it
+                    board[row][(spot + 2)%3] = symbol
+                                    
+                #Changes player
+                player = (player % 2) + 1
+                    
+            #If the input is not a number        
+            except:
+                print('\n\n\n\n\n\n!!!Please enter a number!!!\n')
+        else:
+            spot = random.randint(1, 9)
+            checkRow()
             #Checks if the chosen spot has already been played in
             if board[row][(spot + 2)%3] != " ":
-                print("Please choose an empty space\n")
                 continue
+                print("Please choose an empty space\n")
             else:
                 #Adds spot on board and displays it
                 board[row][(spot + 2)%3] = symbol
-                                
+                                    
             #Changes player
-            if player == 1:
-                player = 2
-            else:
-                player = 1
-                
-        #If the input is not a number        
-        except:
-            print('\n\n\n\n\n\n!!!Please enter a number!!!\n')
+            player = (player % 2) + 1
+            
     endGame()
