@@ -156,6 +156,7 @@ while(True):
                 print('\n\n\n\n\n\n!!!Please enter a number!!!\n')
         else:
             
+            #Checks to see if it can win or stop a win in a row
             placeThird = True
             boardPlaceRow = 0
             for x in board:
@@ -176,6 +177,15 @@ while(True):
                             break
                         boardPlaceColumn += 1
                 boardPlaceRow += 1
+                
+            #Cehcks tp see if it can win or stopa win in a column
+            while c < 3:
+                xCount = 0
+                oCount = 0
+                for x in board:
+                    
+                
+            #Plays random if it can't stop a win or win    
             if placeThird:
                 spot = random.randint(1, 9)
                 
