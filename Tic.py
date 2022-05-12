@@ -20,6 +20,7 @@ def displayBoard():
         print('--|---|--           --|---|--')
 
 
+
 def checkRow():
     global row
     if 1 <= spot <= 3:
@@ -34,7 +35,8 @@ def checkRow():
         return True
     return False
 
-        
+       
+       
 #Function to check if a player has won        
 def checkWin():
     c = 0
@@ -71,6 +73,8 @@ def checkWin():
     
     return True
 
+
+
 #Checks for a tie
 def checkTie():
     symbolCount = 0
@@ -83,6 +87,8 @@ def checkTie():
         return False
     return True
 
+
+
 #Function for selecting a game mode
 def selectMode():
     mode = input("Select a mode:\n1 - Player vs AI\n2 - Player vs Player\n")
@@ -92,6 +98,7 @@ def selectMode():
         print()  
     return int(mode)
 
+
     
 #Function to end game
 def endGame():
@@ -100,17 +107,22 @@ def endGame():
     global player
     player = 1
     global board
+    #Resets the board
     board = [[" "," "," "], [" "," "," "], [" "," "," "]]
+    #Gives the player the option to keep playing, stop, or change their mode with the selectMode function
     again = input('\nPlay again or change mode?\ny: Play Again\nn: Stop Playing\nc: Change Mode\n')
     while (again != 'y'):
         if again == 'n':
             sys.exit('Bruh')
         elif again == 'c':
+            #Prompts player to change the mode and sets again = y to keep the game playing
             gMode = selectMode()
             again = 'y'
             continue
         again = input('Please enter y or n: ')
     print("\n\n\n\n\n\n")
+
+
 
 #Initial mode selection
 gMode = selectMode()
@@ -128,7 +140,10 @@ while(True):
             symbol = 'O'
             
         
-        #Displays places on board, what the current player is, and what their symbol is    
+        #Displays places on board, what the current player is, and what their symbol is   
+        """If game mode 2 was selected (Player vs Player) gMode will = 2 and this will run for manual placement
+        instead of the bot code since when palyer = 2, it will equal gMode and the if statement will be true.
+        If game mode 1 is selected, player 2 will not equal gMode and it will go to the bot code."""
         if player == 1 or player == gMode:
             print('Player ', player, ':', symbol)
             displayBoard()
@@ -154,11 +169,29 @@ while(True):
             #If the input is not a number        
             except:
                 print('\n\n\n\n\n\n!!!Please enter a number!!!\n')
+                
+                
         else:
             
             #Checks to see if it can win or stop a win in a row
-            placeThird = True
+            """The placed variable is set to false when the bot plays, preventing any of its other checks from running
+            which would cause it to play twice"""
+            placed = True
             boardPlaceRow = 0
+            winStopPossibilities = []
+            
+            #Function for appending a symbol to the array winStopPossibilities if it appears twice
+            def appendWinPossibilities():
+                global winStopPossibilities
+                if oCount == 2:
+                    winStopPossibilities.append('O')
+                elif xCount == 2:
+                    winStopPossibilities.append('X')
+                else:
+                    winStopPossibilities.append(' ')
+                
+            """It goes through every row and sees if there are two of the same symbol in that row, if there are it
+            appends that symbol to the winStopPossibilities array."""
             for x in board:
                 boardPlaceColumn = 0
                 xCount = 0
@@ -169,24 +202,107 @@ while(True):
                         xCount += 1
                     elif c == 'O':
                         oCount += 1
-                if xCount == 2 or oCount == 2:
-                    for c in x:
-                        if c == ' ':
-                            board[boardPlaceRow][boardPlaceColumn] = symbol
-                            placeThird = False
-                            break
-                        boardPlaceColumn += 1
-                boardPlaceRow += 1
-                
-            #Cehcks tp see if it can win or stopa win in a column
-            while c < 3:
-                xCount = 0
-                oCount = 0
-                for x in board:
+                appendWinPossibilities()
                     
+            """Using the appended symbols, it checks first if it can play its own symbol to win in one of the rows.
+            If it sees a blank space in one of the rows that has 2 of its own symbols, it will play it. If it can't
+            play to win, it then sees if any of the other symbol were appended and it there is a blank space it can
+            play to prevent the other player from winning."""        
+            def rowFindAndPlace(sym):
+                global board
+                global placed
+                winStopCount = 0
+                for x in winStopPossibilities:
+                    if x == sym:
+                        for i in range(3):
+                            if board[winStopCount][i] == ' ':
+                                board[winStopCount][i] = symbol
+                                placed = False
+                                break
+                    winStopCount += 1
+                    
+            rowFindAndPlace('O')
+            if placed:
+                rowFindAndPlace('X')
+                
+                
+            #Cehcks to see if it can win or stop a win in a column
+            if placed:
+                winStopPossibilities = []
+                for j in range(3):
+                    xCount = 0
+                    oCount = 0
+                    for x in board:
+                        if x[j] == 'X':
+                            xCount += 1
+                        elif x[j] == 'O':
+                            oCount += 1
+                    appendWinPossibilities()
+                
+                #This function uses the same method as the row function, but checks if it should play in a column
+                def columnFindAndPlace(sym):
+                    global board
+                    global placed
+                    winStopCount = 0
+                    for x in winStopPossibilities:
+                        if x == sym:
+                            for i in range(3):
+                                if board[i][winStopCount] == ' ':
+                                    board[i][winStopCount] = symbol
+                                    placed = False
+                                    break
+                        winStopCount += 1
+                        
+                columnFindAndPlace('O')
+                if placed:
+                    columnFindAndPlace('X')
+                
+                    
+                if placed:
+                    oCount = 0
+                    xCount = 0
+                    winStopPossibilities = []
+                    """leftDiagCount will = j for the first loop, allowing for the downward sloping diagonal to be checked
+                    and on the second loop it will be set = 2 and will be decremented by 1 every j loop, allowing the
+                    upward sloping diagonal to be checked"""
+                    leftDiagCount = 0
+                    #Checks diagonal going right for 2 of the same symbol
+                    for i in range(2):
+                        for j in range(3):
+                            if board[j][j] == 'O':
+                                oCount += 1
+                            elif board[j][leftDiagCount] == 'X':
+                                xCount += 1
+                            if i == 0:
+                                leftDiagCount += 1
+                            else:
+                                leftDiagCount -= 1
+                        appendWinPossibilities()
+                        leftDiagCount = 2
+                    def diagonalFindAndPlace(sym):
+                        leftDiagCount = 0
+                        for i in range(2):
+                            if winStopPossibilities[i] == sym:
+                                for j in range(3):  
+                                    if board[j][leftDiagCount] == ' ':
+                                        board[j][leftDiagCount] = symbol
+                                        placed = False
+                                        break
+                                    if i == 0:
+                                        leftDiagCount += 1
+                                    else:
+                                        leftDiagCount -= 1
+                            leftDiagCount = 2
+                                    
+                                
+                        
+                        
+                            
+                        
+                
                 
             #Plays random if it can't stop a win or win    
-            if placeThird:
+            if placed:
                 spot = random.randint(1, 9)
                 
                 checkRow()
