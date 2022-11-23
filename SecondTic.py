@@ -1,26 +1,24 @@
 from random import randint
 
 class Board():
-    def __init__(self):
-        self.board = []
-        self.size = randint(3, 10)
+    def __init__(self, inputSize):
+        self.size = inputSize
         SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
-        for i in range(self.size ** 2):
-            self.board.append(f"{i:02d}".translate(SUB)) # Creates an array for the board
+        self.board = [f'{x:02d}'.translate(SUB) for x in range(self.size ** 2)]
         self.turn = 1
-        self.symbols = ('  X  ', '  O  ')
+        self.symbols = ('  X  ', '  O  ')  # Symbols have a hair+thin space before/after them to match number spacing
 
     def print_board(self):
         for i in range(self.size ** 2):
             if i != 0:
                 print('\n' + int(4.8 * self.size) * '-') if (i % self.size) == 0 else print(' | ', end ="")
-            print(f'{self.board[i]}', end = "")
+            print(self.board[i], end = "")
 
     def make_move(self):
         try:
             playerChoice = int(input(f'\nPlayer {self.turn + 1}:'))
         except:
-            playerChoice = -1
+            playerChoice = -1  # Defaults to invalid choice for a character input
         if playerChoice in range(len(self.board)) and not self.symbols.__contains__(self.board[playerChoice]):
             self.board[playerChoice] = self.symbols[self.turn]
         else:
@@ -68,5 +66,5 @@ class Board():
         print(f'\nPlayer {self.turn + 1} wins')  # Prints a winner if the loop ends without a draw return
 
 if __name__ == '__main__':
-    game = Board()
+    game = Board(randint(3, 10))
     game.game_loop()
