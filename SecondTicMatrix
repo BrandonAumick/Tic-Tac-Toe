@@ -1,0 +1,64 @@
+from random import randint
+
+class Board():
+    def __init__(self, inputSize):
+        self.size = inputSize
+        SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+        self.board = [[f'{i+(self.size * x):02d}'.translate(SUB) for i in range(self.size)] for x in range(self.size)]
+        self.turn = 1
+        self.symbols = ('  X  ', '  O  ')  # Symbols have a hair+thin space before/after them to match number spacing
+
+    def print_board(self):
+        for i in range(self.size ** 2):
+            if i != 0:
+                print('\n' + int(4.8 * self.size) * '-') if (i % self.size) == 0 else print(' | ', end="")
+            print(self.board[int(i / self.size)][i % self.size], end="")
+
+    def make_move(self):
+        try:
+            playerChoice = int(input(f'\nPlayer {self.turn + 1}:'))
+        except:
+            playerChoice = -1  # Defaults to invalid choice for a character input
+        if playerChoice in range(self.size ** 2) and not self.symbols.__contains__(self.board[int(playerChoice / self.size)][playerChoice % self.size]):
+            self.board[int(playerChoice / self.size)][playerChoice % self.size] = self.symbols[self.turn]
+        else:
+            print("Invalid Input")
+            self.make_move()
+
+    def check_win(self):
+        # Check horizontally
+        for row in range(self.size):
+            for column in range(1, self.size):
+                if not self.board[row][column] == self.board[row][0]:
+                    break
+            else:
+                return True
+        # Check vertically
+        for column in range(self.size):
+            for row in range(1, self.size):
+                if not self.board[row][column] == self.board[0][column]:
+                    break
+            else:
+                return True
+        # Check diagonally right
+        if all([row[column] == self.board[0][0] for column, row in enumerate(self.board)]):
+            return True
+        # Check diagonally left
+        if all([row[-1 * (column + 1)] == self.board[0][self.size - 1] for column, row in enumerate(self.board)]):
+            return True
+
+    def game_loop(self):
+        turnCount = 0  # Counts the number of turns played
+        while not self.check_win():
+            if turnCount == self.size ** 2:  # When all possible turns have been played it prints "draw"
+                print("Draw")
+                return
+            self.turn = (self.turn + 1) % 2
+            self.print_board()
+            self.make_move()
+            turnCount += 1
+        print(f'\nPlayer {self.turn + 1} wins')  # Prints a winner if the loop ends without a draw return
+
+if __name__ == '__main__':
+    game = Board(randint(3, 10))
+    game.game_loop()
